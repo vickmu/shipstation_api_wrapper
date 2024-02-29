@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "shipstation_api_wrapper"
-version = "0.1.0"
+version = "0.1.1"
 description = "Non official Shipstation API wrapper"
 authors = ["Vick Mu <arbi3400@gmail.com>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
