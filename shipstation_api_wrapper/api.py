@@ -1,9 +1,7 @@
-import pprint
 import requests
 from .filter import ShipStationOrderFilter
 from .models.order import CustomsItem
 from typing import List
-import pprint
 class ShipStationRequest:
     def __init__(self, base_url="https://ssapi.shipstation.com", headers=None):
         self.base_url = base_url
@@ -74,7 +72,6 @@ class ShipStationOrders:
         
         sat_delivery = {"saturdayDelivery": activate}
         order['advancedOptions'].update(sat_delivery)
-        pprint.pprint(order)
         return self.request.post('/orders/createorder', order)
     
     def update_customs_declaration(self, order: dict, custom_declarations:List[CustomsItem]):
