@@ -27,6 +27,10 @@ class ShipStationOrderFilter:
     def add_order_number(self, order_number:int): 
         if order_number:
             self.params['orderNumber'] = order_number
+    
+    def add_tag_filter(self, tag_id:int):
+        if tag_id:
+            self.params['tagId'] = tag_id
 
     def get_filters(self) -> Dict[str, str]:
         return self.params
