@@ -1,5 +1,9 @@
+import pprint
 import requests
 from .filter import ShipStationOrderFilter
+from .models.order import CustomsItem
+from typing import List
+import pprint
 class ShipStationRequest:
     def __init__(self, base_url="https://ssapi.shipstation.com", headers=None):
         self.base_url = base_url
@@ -45,25 +49,42 @@ class ShipStationOrders:
         params = order_filter.get_filters()
         return self.request.get('/orders', params=params) 
     
+    def get_by_number(self, order_number):
+        order_filter = ShipStationOrderFilter()
+        order_filter.add_order_number(order_number)
+        return self.list_with_filter(order_filter=order_filter)
+
     def tag(self, order_id, tag_id): 
         return self.request.post('/orders/addtag', {'orderId': order_id, 'tagId': tag_id})
 
     def hold(self, order_id, date): 
         return self.request.post(f'/orders/holduntil', {'orderId': order_id, 'holdUntilDate': date})
     
-    def add_note(self, note:str, order_id:int):
-    
-        order_data = self.get_by_id(order_id=order_id).json()['orders'][0]
-        new_note = {"internalNotes": f" {note} {order_data['internalNotes']}"}
-        order_data.update(new_note)
-        return self.request.post('/orders/createorder', order_data)
+    def add_note(self, note:str, order:dict):
+        assert isinstance(order, dict), "order must be a shipstation order dictionary"
+        assert 'internalNotes' in order, "order must contain internalNotes. Make sure you're passing an individual order, not list of orders." 
 
-    def activate_saturday_delivery(self, order_id: int):
-         
-        order_data = self.get_by_id(order_id=order_id).json()['orders'][0]
-        sat_delivery = {"saturdayDelivery": sat_delivery}
-        order_data.update(sat_delivery)
-        return self.request.post('/orders/createorder', order_data)
+        new_note = {"internalNotes": f" {note} {order['internalNotes']}"}
+        order.update(new_note)
+        return self.request.post('/orders/createorder', order)
+
+    def activate_saturday_delivery(self, order: dict, activate:bool):
+        assert isinstance(order, dict), "order must be a shipstation order dictionary"
+        assert 'advancedOptions' in order, "order must contain advancedOptions. Make sure you're passing an individual order, not list of orders." 
+        
+        sat_delivery = {"saturdayDelivery": activate}
+        order['advancedOptions'].update(sat_delivery)
+        pprint.pprint(order)
+        return self.request.post('/orders/createorder', order)
+    
+    def update_customs_declaration(self, order: dict, custom_declarations:List[CustomsItem]):
+        assert isinstance(order, dict), "order must be a shipstation order dictionary"
+        assert 'advancedOptions' in order, "order must contain advancedOptions. Make sure you're passing an individual order, not list of orders."
+        assert isinstance(custom_declarations, list), "custom_declaration must be a list of CustomsItem objects"
+        assert type(custom_declarations[0]) == CustomsItem, "custom_declaration must be a CustomsItem object"
+        
+        order['internationalOptions']['customsItems'] = [c_d.model_dump() for c_d in custom_declarations]
+        return self.request.post('/orders/createorder', order)
 
 class ShipStationShipments:
     def __init__(self, request_handler: ShipStationRequest):
