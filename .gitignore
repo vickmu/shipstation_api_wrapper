@@ -1,3 +1,5 @@
 /.vscode
 /temp
 /tests.py
+__pycache__
+/dist
