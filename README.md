@@ -52,5 +52,5 @@ print(orders.json())
 ## Advanced Features
 Refer to the ShipStation API Documentation for more details on the advanced usage of the API.
 
-Contributing
-We welcome contributions from the community! Please refer to the project's contributing guidelines for more information.
+## Contributing
+I welcome contributions from the community! Please refer to the project's contributing guidelines for more information.
