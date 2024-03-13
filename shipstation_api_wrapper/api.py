@@ -1,5 +1,5 @@
 import requests
-from .filter import ShipStationOrderFilter
+from .filter import ShipStationOrderFilter, ShipStationProductFilter
 from .models.order import CustomsItem
 from typing import List
 class ShipStationRequest:
@@ -11,9 +11,13 @@ class ShipStationRequest:
         url = f"{self.base_url}{endpoint}"
         response = requests.get(url, headers=self.headers, params=params)
         return response
-    def post(self, endpoint, json)->requests.Response:
+    def post(self, endpoint, json, params=None)->requests.Response:
         url = f"{self.base_url}{endpoint}"
-        response = requests.post(url, headers=self.headers, json=json)
+        response = requests.post(url, headers=self.headers, json=json, params=params)
+        return response
+    def put(self, endpoint, json, params=None)->requests.Response:
+        url = f"{self.base_url}{endpoint}"
+        response = requests.put(url, headers=self.headers, json=json, params=params)
         return response
 
 class ShipStationClient:
@@ -24,6 +28,7 @@ class ShipStationClient:
         self.orders = ShipStationOrders(request_handler)
         self.shipments = ShipStationShipments(request_handler)
         self.customers = ShipStationCustomers(request_handler)
+        self.products = ShipStationProducts(request_handler)
 
 class ShipStationTags:
     def __init__(self, request_handler: ShipStationRequest):
@@ -117,3 +122,26 @@ class ShipStationCustomers:
 
     def get_by_id(self, customer_id): 
         return self.request.get(f'/customers/{customer_id}')
+
+class ShipStationProducts: 
+    def __init__(self, request_handler: ShipStationRequest):
+        self.request = request_handler
+    
+    def list_products(self): 
+        return self.request.get('/products')
+
+    def get_product_by_sku(self, sku):
+        filter = ShipStationProductFilter()
+        filter.add_sku_filter(sku)
+        params = filter.get_filters()
+        return self.request.get(f'/products', params=params)
+    
+    def update_tag(self, sku:str, tag_ids:list):
+        assert isinstance(tag_ids, list), "tag_ids must be a list"
+        
+        response_data = self.get_product_by_sku(sku).json()
+        product = response_data['products'][0]
+        print(product)
+        product.update({'tags': []})
+        print(f'product: {product}')
+        return self.request.put(f'/products/{product["productId"]}', json=product)
