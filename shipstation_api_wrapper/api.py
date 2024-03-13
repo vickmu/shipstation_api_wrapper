@@ -141,7 +141,5 @@ class ShipStationProducts:
         
         response_data = self.get_product_by_sku(sku).json()
         product = response_data['products'][0]
-        print(product)
         product.update({'tags': []})
-        print(f'product: {product}')
         return self.request.put(f'/products/{product["productId"]}', json=product)
