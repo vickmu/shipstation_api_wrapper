@@ -34,3 +34,14 @@ class ShipStationOrderFilter:
 
     def get_filters(self) -> Dict[str, str]:
         return self.params
+    
+class ShipStationProductFilter: 
+    def __init__(self) -> None:
+        self.params: Dict[str, str] = {}
+
+    def add_sku_filter(self, sku: Optional[str] = None) -> None:
+        if sku:
+            self.params['sku'] = sku
+        
+    def get_filters(self) -> Dict[str, str]:
+        return self.params
